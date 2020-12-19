@@ -1,34 +1,35 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 
 
-class ContactForm extends Component {
-    state = {
-        name: '',
-        number: '',
+function ContactForm (props) {
+    const [name, setName] = useState('');
+    const [number, setNumber] = useState('');
+
+    const handleChangeName = event => {
+        setName(event.currentTarget.value);
     };
 
-    handleChange = event => {
-        this.setState({ [event.currentTarget.name]: event.currentTarget.value });
+    const handleChangeNumber = event => {
+        setNumber(event.currentTarget.value);
     };
 
-    handleSubmit = event => {
+    const handleSubmit = event => {
         event.preventDefault();
-        this.props.onSubmit(this.state);
-        this.reset();
+        props.onSubmit({ name, number });
+        reset();
     };
 
-    reset = () => {
-        this.setState({ name: '', number: '', id: '' })
+    const reset = () => {
+        setName('');
+        setNumber('');
     };
 
-    render() {
-        const { name, number } = this.state;
-        return (<form className="formBlock" onSubmit={this.handleSubmit}>
+    return (<form className="formBlock" onSubmit={handleSubmit}>
         <label className="labelBlock">
               Name <input
                 type="text"
                 value={name}
-                onChange={this.handleChange}
+                onChange={handleChangeName}
                 name="name"
                 className="inputStyles" />
         </label>
@@ -36,13 +37,13 @@ class ContactForm extends Component {
               Number <input
                 type="tel"
                 value={number}
-                onChange={this.handleChange}
+                onChange={handleChangeNumber}
                 name="number"
                 className="inputStyles" />
         </label>
         <button type="submit" className="button" disabled={!name || !number}>Add contact</button>
       </form> )
-    }
 }
+
 
 export default ContactForm;

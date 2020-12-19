@@ -1,5 +1,5 @@
 import './App.css';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import ContactForm from './Components/ContactForm';
 import ContactList from './Components/ContactList';
 import Filter from './Components/Filter';
@@ -13,50 +13,55 @@ const contacts = [
   { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
 ];
 
-class App extends Component {
-  state = {
-  contacts: contacts,
-  filter: '',
-  }
+function App() {
+  const [userContact, setUserContact] = useState(contacts);
+  const [filter, setFilter] = useState('');
 
-  formSubmitHendler = ({name, number}) => {
+  const formSubmitHendler = ({ name, number }) => {
     const contact = {
       id: shortid.generate(),
       name,
       number,
     };
-    if (this.state.contacts.find(cont => cont.name === contact.name)) {
+    if (userContact.find(cont => cont.name === contact.name)) {
       alert(`${contact.name} is already in contacts`);
       return
-    }
-    this.setState(({contacts}) => ({
-      contacts: [contact, ...contacts]
-    }));
+    };
+    setUserContact(state => [...state, contact]);
   };
 
-  deleteContact = idContact => {
-    this.setState(({contacts}) => ({
-      contacts: contacts.filter(contact => contact.id !== idContact)
-    }));
-  }
+  const deleteContact = idContact => {
+    setUserContact(state => state.filter(contact => contact.id !== idContact));
+  };
 
-  chengeFilter = event => {
-    this.setState({filter: event.currentTarget.value});
-  }
+  const chengeFilter = event => {
+    setFilter(event.currentTarget.value);
+  };
 
-  render() {
-    const { contacts, filter } = this.state;
-    const normalizedFilter = filter.toLowerCase();
-    const visibleContacts = contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter));
-    return (
-    <div className="App">
+  useEffect(() => {
+    const contacts = localStorage.getItem('contacts');
+    const parseContacts = JSON.parse(contacts);
+    if (parseContacts) {
+      setUserContact(parseContacts);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(userContact))
+  }, [userContact]
+  );
+
+  const normalizedFilter = filter.toLowerCase();
+  const visibleContacts = userContact.filter(contact => contact.name.toLowerCase().includes(normalizedFilter));
+  
+  return (<div className="App">
       <h1>Phonebook</h1>
-          <ContactForm onSubmit={this.formSubmitHendler}/>
+          <ContactForm onSubmit={formSubmitHendler}/>
       <h2>Contacts</h2>
-        <Filter value={filter} onChange={this.chengeFilter}/>
-        <ContactList contacts={visibleContacts} onDeleteContact={this.deleteContact}/>
+        <Filter value={filter} onChange={chengeFilter}/>
+        <ContactList contacts={visibleContacts} onDeleteContact={deleteContact}/>
     </div>
   );
-  }}
+};
 
 export default App;
